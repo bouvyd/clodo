@@ -1,0 +1,64 @@
+# Two-service stack: `odoo` (the dev container you attach to) + `db` (Postgres),
+# on a shared network. All host paths and ports come from ../.env so the same
+# files can drive multiple Odoo versions (use a different .env / project name).
+name: ${COMPOSE_PROJECT_NAME:-clodo}
+
+services:
+  odoo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PYTHON_BASE: ${PYTHON_BASE:-python:3.12-bookworm}
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+    image: clodo-odoo:${ODOO_VERSION:-19.0}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      # The clodo workspace itself (devcontainer config, scripts, .mcp.json...)
+      - ${WORKSPACE:-..}:/workspace:rw
+      # Odoo source repositories, mounted read-write under src/.
+      - ${ODOO_SRC:?set ODOO_SRC in .env}:/workspace/src/odoo:rw
+      - ${ENTERPRISE_SRC:?set ENTERPRISE_SRC in .env}:/workspace/src/enterprise:rw
+      - ${DESIGN_THEMES_SRC:?set DESIGN_THEMES_SRC in .env}:/workspace/src/design-themes:rw
+      - ${CUSTOM_ADDONS:?set CUSTOM_ADDONS in .env}:/workspace/src/custom:rw
+    environment:
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: ${DB_USER:-odoo}
+      PGPASSWORD: ${DB_PASSWORD:-odoo}
+      PGDATABASE: postgres
+    ports:
+      - "${ODOO_HTTP_PORT:-8069}:8069"
+      - "${ODOO_GEVENT_PORT:-8072}:8072"
+    networks:
+      - odoo-net
+    # Keep the container alive; Odoo is started on demand via the scripts.
+    command: sleep infinity
+
+  db:
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_USER: ${DB_USER:-odoo}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-odoo}
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-odoo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - odoo-net
+
+volumes:
+  pgdata:
+
+networks:
+  odoo-net:
+    driver: bridge

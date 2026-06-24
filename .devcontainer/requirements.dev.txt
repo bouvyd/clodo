@@ -1,0 +1,5 @@
+# Extra tooling for the dev container (not part of Odoo core requirements).
+debugpy          # VSCode "attach" / breakpoint debugging of Odoo
+ipython          # nicer `odoo shell`
+watchdog         # file-watching for --dev=reload
+rlPyCairo        # reportlab renderPM backend (barcode / raster image rendering)

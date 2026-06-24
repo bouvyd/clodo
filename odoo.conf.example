@@ -1,0 +1,42 @@
+[options]
+; Local machine config — copy to odoo.conf (git-ignored) and edit freely.
+; The dev scripts (init-db, start, run-tests) automatically prefer this file
+; over the image-level default at .devcontainer/odoo.conf.
+
+; Addons path: extend the default by appending extra directories.
+; Add submodule repo roots here so their nested modules are discovered.
+addons_path =
+    /workspace/src/odoo/addons,
+    /workspace/src/enterprise,
+    /workspace/src/design-themes,
+    /workspace/src/custom
+
+; Database (matches the db service on the compose network)
+db_host = db
+db_port = 5432
+db_user = odoo
+db_password = odoo
+
+admin_passwd = admin
+http_port = 8069
+gevent_port = 8072
+
+; Filestore / sessions (bind-mounted, survives container rebuilds)
+data_dir = /workspace/.odoo
+
+; Dev-friendly: single process, no request timeouts so breakpoints don't die.
+workers = 0
+max_cron_threads = 1
+limit_time_cpu = 0
+limit_time_real = 0
+
+; Logging
+; log_level = debug
+; logfile = /workspace/logs/odoo.log
+
+; SMTP (outbound mail)
+; smtp_server = localhost
+; smtp_port = 25
+; smtp_ssl = False
+; smtp_user =
+; smtp_password =
