@@ -3,3 +3,5 @@ debugpy          # VSCode "attach" / breakpoint debugging of Odoo
 ipython          # nicer `odoo shell`
 watchdog         # file-watching for --dev=reload
 rlPyCairo        # reportlab renderPM backend (barcode / raster image rendering)
+websocket-client # needed for longpolling/bus websocket tests
+phonenumbers     # phone number validation, used by some modules but not pinned in requirements.txt

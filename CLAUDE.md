@@ -16,6 +16,7 @@ run **inside** the `odoo` dev container, attached via VSCode Dev Containers.
 Postgres runs in the separate `db` service. From the container:
 - CLI: `./scripts/dbsh.sh [dbname]` (or `psql -h db -U odoo ...`)
 - MCP: the `postgres` server in `.mcp.json` is wired to `db:5432`.
+- DO NOT USE THE `postgres` db for testing, etc. You can create new databases as you see fit. If you need to query and the MCP does not allow them, you can use the CLI.
 
 ## Running tests
 ```bash

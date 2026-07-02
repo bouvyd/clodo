@@ -14,7 +14,12 @@
     "vscode": {
       "extensions": [
         "ms-python.python",
-        "Anthropic.claude-code"
+        "Anthropic.claude-code",
+        "dbaeumer.vscode-eslint",
+        "inferrinizzard.prettier-sql-vscode",
+        "esbenp.prettier-vscode",
+        "charliermarsh.ruff",
+        "redhat.vscode-xml"
       ],
       "settings": {
         "python.defaultInterpreterPath": "/opt/venv/bin/python",

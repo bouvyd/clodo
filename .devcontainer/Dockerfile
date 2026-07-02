@@ -69,6 +69,17 @@ RUN set -eux; \
 # rtlcss is required by Odoo to compile RTL (right-to-left) web assets.
 RUN npm install -g rtlcss && npm cache clean --force
 
+# --- Google Chrome (headless browser tests / tours) --------------------------
+RUN set -eux; \
+    wget -q -O /usr/share/keyrings/google-chrome.gpg.key https://dl.google.com/linux/linux_signing_key.pub; \
+    gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg /usr/share/keyrings/google-chrome.gpg.key; \
+    rm /usr/share/keyrings/google-chrome.gpg.key; \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" \
+        > /etc/apt/sources.list.d/google-chrome.list; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends google-chrome-stable; \
+    rm -rf /var/lib/apt/lists/*
+
 # --- Non-root user matching the host UID/GID ---------------------------------
 # Keeps files created in the rw-mounted source repos owned by your host user.
 RUN set -eux; \
@@ -76,7 +87,9 @@ RUN set -eux; \
     groupname="$(getent group "${USER_GID}" | cut -d: -f1)"; \
     useradd -m -u "${USER_UID}" -g "${USER_GID}" -s /bin/bash "${USER_NAME}"; \
     echo "${USER_NAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/"${USER_NAME}"; \
-    chmod 0440 /etc/sudoers.d/"${USER_NAME}"
+    chmod 0440 /etc/sudoers.d/"${USER_NAME}"; \
+    mkdir -p /home/"${USER_NAME}"/.claude; \
+    chown "${USER_UID}:${USER_GID}" /home/"${USER_NAME}"/.claude
 
 # --- Python virtualenv with Odoo's pinned dependencies -----------------------
 ENV VIRTUAL_ENV=/opt/venv
